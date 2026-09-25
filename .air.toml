@@ -1,0 +1,9 @@
+[build]
+entrypoint = ["./tmp/main"]
+cmd = "go build -o ./tmp/main cmd/server/main.go"
+bin = "./tmp/main"
+
+[build.windows]
+cmd = "go build -o ./tmp/main.exe cmd/server/main.go"
+bin = "tmp\\main.exe"
+entrypoint = ["tmp\\main.exe"]
