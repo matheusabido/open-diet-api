@@ -1,0 +1,4 @@
+CREATE TABLE schema_migrations (
+    name       VARCHAR(255) PRIMARY KEY,
+    applied_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);

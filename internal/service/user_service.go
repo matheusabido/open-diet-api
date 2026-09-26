@@ -1,0 +1,89 @@
+package service
+
+import (
+	"context"
+	"errors"
+
+	"github.com/matheusabido/open-diet-api/internal/dto"
+	"github.com/matheusabido/open-diet-api/internal/model"
+	"github.com/matheusabido/open-diet-api/internal/repository"
+	"golang.org/x/crypto/bcrypt"
+)
+
+var ErrInvalidCredentials = errors.New("invalid username or password")
+
+var dummyHash, _ = bcrypt.GenerateFromPassword([]byte("dummy-password"), bcrypt.DefaultCost)
+
+type UserService struct {
+	repo         *repository.UserRepository
+	tokenService *TokenService
+}
+
+func NewUserService(repo *repository.UserRepository, tokenService *TokenService) *UserService {
+	return &UserService{repo: repo, tokenService: tokenService}
+}
+
+func (s *UserService) Register(ctx context.Context, body dto.UserRegisterDTO) (*dto.AuthResponseDTO, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &model.User{
+		Username: body.Username,
+		Password: string(hash),
+	}
+	if err := s.repo.Create(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return s.authResponse(ctx, user)
+}
+
+func (s *UserService) Login(ctx context.Context, body dto.UserLoginDTO) (*dto.AuthResponseDTO, error) {
+	user, err := s.repo.FindByUsername(ctx, body.Username)
+	if errors.Is(err, repository.ErrUserNotFound) {
+		_ = bcrypt.CompareHashAndPassword(dummyHash, []byte(body.Password))
+		return nil, ErrInvalidCredentials
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
+		return nil, ErrInvalidCredentials
+	}
+
+	return s.authResponse(ctx, user)
+}
+
+func (s *UserService) Refresh(ctx context.Context, body dto.RefreshTokenDTO) (*dto.AuthResponseDTO, error) {
+	userID, err := s.tokenService.Consume(ctx, body.RefreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.repo.FindByID(ctx, userID)
+	if errors.Is(err, repository.ErrUserNotFound) {
+		return nil, ErrInvalidRefreshToken
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return s.authResponse(ctx, user)
+}
+
+func (s *UserService) authResponse(ctx context.Context, user *model.User) (*dto.AuthResponseDTO, error) {
+	tokens, err := s.tokenService.Issue(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.AuthResponseDTO{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+		ExpiresIn:    tokens.ExpiresIn,
+		User:         user,
+	}, nil
+}
