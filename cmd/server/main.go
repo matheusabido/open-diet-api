@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/matheusabido/open-diet-api/internal/controller"
 	"github.com/matheusabido/open-diet-api/internal/database"
+	"github.com/matheusabido/open-diet-api/internal/middleware"
 	"github.com/matheusabido/open-diet-api/internal/repository"
 	"github.com/matheusabido/open-diet-api/internal/service"
 	"github.com/sirupsen/logrus"
@@ -49,6 +50,10 @@ func main() {
 	app.Post("/register", userController.Register)
 	app.Post("/login", userController.Login)
 	app.Post("/refresh", userController.Refresh)
+
+	me := app.Group("/users/me", middleware.Auth(tokenService))
+	me.Get("/", userController.Me)
+	me.Patch("/", userController.UpdateMe)
 
 	if err := app.Listen(":3000"); err != nil {
 		logrus.Errorf("Could not start server: %v", err)

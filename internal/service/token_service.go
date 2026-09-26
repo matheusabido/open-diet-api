@@ -15,7 +15,10 @@ import (
 	"github.com/matheusabido/open-diet-api/internal/repository"
 )
 
-var ErrInvalidRefreshToken = errors.New("invalid or expired refresh token")
+var (
+	ErrInvalidRefreshToken = errors.New("invalid or expired refresh token")
+	ErrInvalidAccessToken  = errors.New("invalid or expired access token")
+)
 
 const (
 	accessTokenTTL  = 15 * time.Minute
@@ -70,6 +73,23 @@ func (s *TokenService) Issue(ctx context.Context, userID uint64) (*TokenPair, er
 		RefreshToken: refreshToken,
 		ExpiresIn:    int(accessTokenTTL.Seconds()),
 	}, nil
+}
+
+func (s *TokenService) ParseAccessToken(accessToken string) (uint64, error) {
+	claims := &jwt.RegisteredClaims{}
+	_, err := jwt.ParseWithClaims(accessToken, claims, func(token *jwt.Token) (any, error) {
+		return s.jwtSecret, nil
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithExpirationRequired())
+	if err != nil {
+		return 0, ErrInvalidAccessToken
+	}
+
+	userID, err := strconv.ParseUint(claims.Subject, 10, 64)
+	if err != nil {
+		return 0, ErrInvalidAccessToken
+	}
+
+	return userID, nil
 }
 
 func (s *TokenService) Consume(ctx context.Context, refreshToken string) (uint64, error) {

@@ -74,6 +74,36 @@ func (s *UserService) Refresh(ctx context.Context, body dto.RefreshTokenDTO) (*d
 	return s.authResponse(ctx, user)
 }
 
+func (s *UserService) FindByID(ctx context.Context, id uint64) (*model.User, error) {
+	return s.repo.FindByID(ctx, id)
+}
+
+func (s *UserService) Update(ctx context.Context, id uint64, body dto.UserUpdateDTO) (*model.User, error) {
+	user, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if body.KcalGoal != nil {
+		user.KcalGoal = uint16(*body.KcalGoal)
+	}
+	if body.ProteinGoal != nil {
+		user.ProteinGoal = uint16(*body.ProteinGoal)
+	}
+	if body.CarbohydrateGoal != nil {
+		user.CarbohydrateGoal = uint16(*body.CarbohydrateGoal)
+	}
+	if body.FatGoal != nil {
+		user.FatGoal = uint16(*body.FatGoal)
+	}
+
+	if err := s.repo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (s *UserService) authResponse(ctx context.Context, user *model.User) (*dto.AuthResponseDTO, error) {
 	tokens, err := s.tokenService.Issue(ctx, user.ID)
 	if err != nil {

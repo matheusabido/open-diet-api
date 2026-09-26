@@ -78,3 +78,14 @@ func (r *UserRepository) FindByID(ctx context.Context, id uint64) (*model.User, 
 
 	return user, nil
 }
+
+func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
+	_, err := r.db.Exec(ctx,
+		`UPDATE users
+		 SET kcal_goal = $1, protein_goal = $2, carbohydrate_goal = $3, fat_goal = $4
+		 WHERE id = $5`,
+		user.KcalGoal, user.ProteinGoal, user.CarbohydrateGoal, user.FatGoal, user.ID,
+	)
+
+	return err
+}

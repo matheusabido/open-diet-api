@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"math"
 	"regexp"
 
 	"github.com/matheusabido/open-diet-api/internal/i18n"
@@ -37,6 +38,31 @@ func (d UserRegisterDTO) Validate(t i18n.Translator) validation.Errors {
 	v.Check(validation.Equal(d.Password, d.PasswordConfirmation), "password_confirmation", t(i18n.PasswordConfirmation))
 
 	return v.Errors()
+}
+
+type UserUpdateDTO struct {
+	KcalGoal         *int `json:"kcal_goal"`
+	ProteinGoal      *int `json:"protein_goal"`
+	CarbohydrateGoal *int `json:"carbohydrate_goal"`
+	FatGoal          *int `json:"fat_goal"`
+}
+
+func (d UserUpdateDTO) Validate(t i18n.Translator) validation.Errors {
+	v := validation.New()
+
+	checkGoal(v, t, "kcal_goal", d.KcalGoal)
+	checkGoal(v, t, "protein_goal", d.ProteinGoal)
+	checkGoal(v, t, "carbohydrate_goal", d.CarbohydrateGoal)
+	checkGoal(v, t, "fat_goal", d.FatGoal)
+
+	return v.Errors()
+}
+
+func checkGoal(v *validation.Validator, t i18n.Translator, field string, value *int) {
+	if value == nil {
+		return
+	}
+	v.Check(validation.Between(*value, 0, math.MaxUint16), field, t(i18n.Between, 0, math.MaxUint16))
 }
 
 type UserLoginDTO struct {
