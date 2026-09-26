@@ -13,7 +13,7 @@ var ErrFoodNotFound = errors.New("food not found")
 
 const foodPageSize = 20
 
-const foodColumns = `id, name, brand, kcal, protein, carbohydrate, fat, amount, unit, created_by, created_at, updated_at`
+const foodColumns = `f.id, f.name, f.brand, f.kcal, f.protein, f.carbohydrate, f.fat, f.amount, f.unit, f.created_by, f.created_at, f.updated_at`
 
 type FoodRepository struct {
 	db *pgxpool.Pool
@@ -33,7 +33,7 @@ func (r *FoodRepository) Create(ctx context.Context, food *model.Food) error {
 }
 
 func (r *FoodRepository) FindByID(ctx context.Context, id uint64) (*model.Food, error) {
-	rows, err := r.db.Query(ctx, `SELECT `+foodColumns+` FROM foods WHERE id = $1`, id)
+	rows, err := r.db.Query(ctx, `SELECT `+foodColumns+` FROM foods f WHERE f.id = $1`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +52,9 @@ func (r *FoodRepository) FindByID(ctx context.Context, id uint64) (*model.Food, 
 func (r *FoodRepository) List(ctx context.Context, search string, after uint64) ([]*model.Food, error) {
 	rows, err := r.db.Query(ctx,
 		`SELECT `+foodColumns+`
-		 FROM foods
-		 WHERE id > $2 AND ($1 = '' OR name ILIKE '%' || $1 || '%' OR brand ILIKE '%' || $1 || '%')
-		 ORDER BY id
+		 FROM foods f
+		 WHERE f.id > $2 AND ($1 = '' OR f.name ILIKE '%' || $1 || '%' OR f.brand ILIKE '%' || $1 || '%')
+		 ORDER BY f.id
 		 LIMIT $3`,
 		search, after, foodPageSize,
 	)

@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -74,4 +75,14 @@ func GreaterThan[T cmp.Ordered](value, min T) bool {
 
 func In[T comparable](value T, allowed ...T) bool {
 	return slices.Contains(allowed, value)
+}
+
+func ISODateTime(s string) bool {
+	_, err := time.Parse(time.RFC3339, s)
+	return err == nil
+}
+
+func ISODate(s string) bool {
+	_, err := time.Parse(time.DateOnly, s)
+	return err == nil
 }

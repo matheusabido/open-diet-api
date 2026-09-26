@@ -43,13 +43,16 @@ func main() {
 	userRepository := repository.NewUserRepository(db)
 	refreshTokenRepository := repository.NewRefreshTokenRepository(db)
 	foodRepository := repository.NewFoodRepository(db)
+	foodItemRepository := repository.NewFoodItemRepository(db)
 
 	tokenService := service.NewTokenService(refreshTokenRepository, jwtSecret)
 	userService := service.NewUserService(userRepository, tokenService)
 	foodService := service.NewFoodService(foodRepository)
+	foodItemService := service.NewFoodItemService(foodItemRepository, foodRepository)
 
 	userController := controller.NewUserController(userService)
 	foodController := controller.NewFoodController(foodService)
+	foodItemController := controller.NewFoodItemController(foodItemService)
 
 	auth := middleware.Auth(tokenService, userService)
 	adminOnly := middleware.RequireRole(model.RoleAdmin)
@@ -68,6 +71,13 @@ func main() {
 	foods.Get("/:id", foodController.Show)
 	foods.Put("/:id", adminOnly, foodController.Update)
 	foods.Delete("/:id", adminOnly, foodController.Delete)
+
+	foodItems := app.Group("/food-items", auth)
+	foodItems.Get("/", foodItemController.List)
+	foodItems.Post("/", foodItemController.Create)
+	foodItems.Get("/:id", foodItemController.Show)
+	foodItems.Put("/:id", foodItemController.Update)
+	foodItems.Delete("/:id", foodItemController.Delete)
 
 	if err := app.Listen(":3000"); err != nil {
 		logrus.Errorf("Could not start server: %v", err)
