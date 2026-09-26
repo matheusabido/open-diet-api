@@ -78,11 +78,8 @@ func (s *UserService) FindByID(ctx context.Context, id uint64) (*model.User, err
 	return s.repo.FindByID(ctx, id)
 }
 
-func (s *UserService) Update(ctx context.Context, id uint64, body dto.UserUpdateDTO) (*model.User, error) {
-	user, err := s.repo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
+func (s *UserService) Update(ctx context.Context, current *model.User, body dto.UserUpdateDTO) (*model.User, error) {
+	user := *current
 
 	if body.KcalGoal != nil {
 		user.KcalGoal = uint16(*body.KcalGoal)
@@ -97,11 +94,11 @@ func (s *UserService) Update(ctx context.Context, id uint64, body dto.UserUpdate
 		user.FatGoal = uint16(*body.FatGoal)
 	}
 
-	if err := s.repo.Update(ctx, user); err != nil {
+	if err := s.repo.Update(ctx, &user); err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (s *UserService) authResponse(ctx context.Context, user *model.User) (*dto.AuthResponseDTO, error) {

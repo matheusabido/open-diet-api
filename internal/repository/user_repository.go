@@ -29,9 +29,9 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 	err := r.db.QueryRow(ctx,
 		`INSERT INTO users (username, password, kcal_goal, protein_goal, carbohydrate_goal, fat_goal)
 		 VALUES ($1, $2, $3, $4, $5, $6)
-		 RETURNING id`,
+		 RETURNING id, role`,
 		user.Username, user.Password, user.KcalGoal, user.ProteinGoal, user.CarbohydrateGoal, user.FatGoal,
-	).Scan(&user.ID)
+	).Scan(&user.ID, &user.Role)
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == uniqueViolation {
@@ -44,11 +44,11 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*model.User, error) {
 	user := &model.User{}
 	err := r.db.QueryRow(ctx,
-		`SELECT id, username, password, kcal_goal, protein_goal, carbohydrate_goal, fat_goal
+		`SELECT id, username, password, role, kcal_goal, protein_goal, carbohydrate_goal, fat_goal
 		 FROM users
 		 WHERE username = $1`,
 		username,
-	).Scan(&user.ID, &user.Username, &user.Password, &user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal)
+	).Scan(&user.ID, &user.Username, &user.Password, &user.Role, &user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrUserNotFound
@@ -63,11 +63,11 @@ func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*
 func (r *UserRepository) FindByID(ctx context.Context, id uint64) (*model.User, error) {
 	user := &model.User{}
 	err := r.db.QueryRow(ctx,
-		`SELECT id, username, password, kcal_goal, protein_goal, carbohydrate_goal, fat_goal
+		`SELECT id, username, password, role, kcal_goal, protein_goal, carbohydrate_goal, fat_goal
 		 FROM users
 		 WHERE id = $1`,
 		id,
-	).Scan(&user.ID, &user.Username, &user.Password, &user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal)
+	).Scan(&user.ID, &user.Username, &user.Password, &user.Role, &user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrUserNotFound

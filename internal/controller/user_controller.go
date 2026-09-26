@@ -96,18 +96,7 @@ func (u *UserController) Refresh(c fiber.Ctx) error {
 }
 
 func (u *UserController) Me(c fiber.Ctx) error {
-	t := translator(c)
-
-	user, err := u.service.FindByID(c.Context(), middleware.UserID(c))
-	if errors.Is(err, repository.ErrUserNotFound) {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": t(i18n.UserNotFound)})
-	}
-	if err != nil {
-		logrus.Errorf("me: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": t(i18n.InternalError)})
-	}
-
-	return c.JSON(user)
+	return c.JSON(middleware.User(c))
 }
 
 func (u *UserController) UpdateMe(c fiber.Ctx) error {
@@ -122,10 +111,7 @@ func (u *UserController) UpdateMe(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"errors": errs})
 	}
 
-	user, err := u.service.Update(c.Context(), middleware.UserID(c), body)
-	if errors.Is(err, repository.ErrUserNotFound) {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": t(i18n.UserNotFound)})
-	}
+	user, err := u.service.Update(c.Context(), middleware.User(c), body)
 	if err != nil {
 		logrus.Errorf("update me: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": t(i18n.InternalError)})

@@ -60,6 +60,18 @@ func Between[T cmp.Ordered](value, min, max T) bool {
 	return value >= min && value <= max
 }
 
+func Min[T cmp.Ordered](value, min T) bool {
+	return value >= min
+}
+
+func Max[T cmp.Ordered](value, max T) bool {
+	return value <= max
+}
+
+func GreaterThan[T cmp.Ordered](value, min T) bool {
+	return value > min
+}
+
 func In[T comparable](value T, allowed ...T) bool {
 	return slices.Contains(allowed, value)
 }
