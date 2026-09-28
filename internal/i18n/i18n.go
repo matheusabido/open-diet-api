@@ -22,6 +22,7 @@ const (
 	InvalidQuery         Key = "invalid_query"
 	UsernameTaken        Key = "username_taken"
 	InvalidCredentials   Key = "invalid_credentials"
+	WrongPassword        Key = "wrong_password"
 	InvalidRefreshToken  Key = "invalid_refresh_token"
 	Unauthorized         Key = "unauthorized"
 	Forbidden            Key = "forbidden"
@@ -58,6 +59,7 @@ var messages = map[string]map[Key]string{
 		InvalidQuery:         "parâmetros de consulta inválidos",
 		UsernameTaken:        "nome de usuário já está em uso",
 		InvalidCredentials:   "usuário ou senha inválidos",
+		WrongPassword:        "está incorreta",
 		InvalidRefreshToken:  "refresh token inválido ou expirado",
 		Unauthorized:         "não autenticado",
 		Forbidden:            "acesso negado",
@@ -83,6 +85,7 @@ var messages = map[string]map[Key]string{
 		InvalidQuery:         "invalid query parameters",
 		UsernameTaken:        "username already taken",
 		InvalidCredentials:   "invalid username or password",
+		WrongPassword:        "is incorrect",
 		InvalidRefreshToken:  "invalid or expired refresh token",
 		Unauthorized:         "unauthenticated",
 		Forbidden:            "access denied",

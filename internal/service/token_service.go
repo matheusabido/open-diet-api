@@ -120,6 +120,10 @@ func (s *TokenService) Consume(ctx context.Context, refreshToken string) (uint64
 	return 0, ErrInvalidRefreshToken
 }
 
+func (s *TokenService) RevokeAll(ctx context.Context, userID uint64) error {
+	return s.repo.RevokeAllByUser(ctx, userID)
+}
+
 func hashToken(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])

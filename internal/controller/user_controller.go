@@ -10,6 +10,7 @@ import (
 	"github.com/matheusabido/open-diet-api/internal/middleware"
 	"github.com/matheusabido/open-diet-api/internal/repository"
 	"github.com/matheusabido/open-diet-api/internal/service"
+	"github.com/matheusabido/open-diet-api/internal/validation"
 	"github.com/sirupsen/logrus"
 )
 
@@ -118,4 +119,30 @@ func (u *UserController) UpdateMe(c fiber.Ctx) error {
 	}
 
 	return c.JSON(user)
+}
+
+func (u *UserController) UpdatePassword(c fiber.Ctx) error {
+	t := translator(c)
+
+	body := dto.UserPasswordUpdateDTO{}
+	if err := c.Bind().Body(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": t(i18n.InvalidBody)})
+	}
+
+	if errs := body.Validate(t); len(errs) > 0 {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"errors": errs})
+	}
+
+	res, err := u.service.UpdatePassword(c.Context(), middleware.User(c), body)
+	if errors.Is(err, service.ErrWrongPassword) {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
+			"errors": validation.Errors{"current_password": {t(i18n.WrongPassword)}},
+		})
+	}
+	if err != nil {
+		logrus.Errorf("update password: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": t(i18n.InternalError)})
+	}
+
+	return c.JSON(res)
 }

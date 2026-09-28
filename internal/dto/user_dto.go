@@ -30,14 +30,33 @@ func (d UserRegisterDTO) Validate(t i18n.Translator) validation.Errors {
 	v.Check(validation.MaxLength(d.Username, 32), "username", t(i18n.MaxLength, 32))
 	v.Check(validation.Matches(d.Username, usernameRegex), "username", t(i18n.UsernameCharset))
 
-	v.Check(validation.NotBlank(d.Password), "password", t(i18n.Required))
-	v.Check(validation.MinLength(d.Password, 8), "password", t(i18n.MinLength, 8))
-	v.Check(validation.MaxLength(d.Password, 72), "password", t(i18n.MaxLength, 72))
-	v.Check(validation.Matches(d.Password, passwordRegex), "password", t(i18n.PasswordCharset, passwordSpecialChars))
-
-	v.Check(validation.Equal(d.Password, d.PasswordConfirmation), "password_confirmation", t(i18n.PasswordConfirmation))
+	checkPassword(v, t, d.Password, d.PasswordConfirmation)
 
 	return v.Errors()
+}
+
+type UserPasswordUpdateDTO struct {
+	CurrentPassword      string `json:"current_password"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
+}
+
+func (d UserPasswordUpdateDTO) Validate(t i18n.Translator) validation.Errors {
+	v := validation.New()
+
+	v.Check(validation.NotBlank(d.CurrentPassword), "current_password", t(i18n.Required))
+	checkPassword(v, t, d.Password, d.PasswordConfirmation)
+
+	return v.Errors()
+}
+
+func checkPassword(v *validation.Validator, t i18n.Translator, password, confirmation string) {
+	v.Check(validation.NotBlank(password), "password", t(i18n.Required))
+	v.Check(validation.MinLength(password, 8), "password", t(i18n.MinLength, 8))
+	v.Check(validation.MaxLength(password, 72), "password", t(i18n.MaxLength, 72))
+	v.Check(validation.Matches(password, passwordRegex), "password", t(i18n.PasswordCharset, passwordSpecialChars))
+
+	v.Check(validation.Equal(password, confirmation), "password_confirmation", t(i18n.PasswordConfirmation))
 }
 
 type UserUpdateDTO struct {

@@ -64,6 +64,7 @@ func main() {
 	me := app.Group("/users/me", auth)
 	me.Get("/", userController.Me)
 	me.Patch("/", userController.UpdateMe)
+	me.Patch("/password", userController.UpdatePassword)
 
 	foods := app.Group("/foods", auth)
 	foods.Get("/", foodController.List)

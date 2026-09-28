@@ -79,6 +79,12 @@ func (r *UserRepository) FindByID(ctx context.Context, id uint64) (*model.User, 
 	return user, nil
 }
 
+func (r *UserRepository) UpdatePassword(ctx context.Context, id uint64, password string) error {
+	_, err := r.db.Exec(ctx, `UPDATE users SET password = $1 WHERE id = $2`, password, id)
+
+	return err
+}
+
 func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	_, err := r.db.Exec(ctx,
 		`UPDATE users

@@ -10,7 +10,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrInvalidCredentials = errors.New("invalid username or password")
+var (
+	ErrInvalidCredentials = errors.New("invalid username or password")
+	ErrWrongPassword      = errors.New("wrong current password")
+)
 
 var dummyHash, _ = bcrypt.GenerateFromPassword([]byte("dummy-password"), bcrypt.DefaultCost)
 
@@ -99,6 +102,27 @@ func (s *UserService) Update(ctx context.Context, current *model.User, body dto.
 	}
 
 	return &user, nil
+}
+
+func (s *UserService) UpdatePassword(ctx context.Context, user *model.User, body dto.UserPasswordUpdateDTO) (*dto.AuthResponseDTO, error) {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.CurrentPassword)); err != nil {
+		return nil, ErrWrongPassword
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.repo.UpdatePassword(ctx, user.ID, string(hash)); err != nil {
+		return nil, err
+	}
+
+	if err := s.tokenService.RevokeAll(ctx, user.ID); err != nil {
+		return nil, err
+	}
+
+	return s.authResponse(ctx, user)
 }
 
 func (s *UserService) authResponse(ctx context.Context, user *model.User) (*dto.AuthResponseDTO, error) {
