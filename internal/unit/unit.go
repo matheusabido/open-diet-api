@@ -18,6 +18,7 @@ const (
 	ML Unit = "ml"
 	L  Unit = "L"
 	DL Unit = "dL"
+	UN Unit = "un"
 )
 
 type Dimension string
@@ -25,6 +26,7 @@ type Dimension string
 const (
 	Mass   Dimension = "mass"
 	Volume Dimension = "volume"
+	Count  Dimension = "count"
 )
 
 type definition struct {
@@ -32,7 +34,7 @@ type definition struct {
 	toBase    float64
 }
 
-var All = []Unit{G, KG, MG, OZ, LB, ML, L, DL}
+var All = []Unit{G, KG, MG, OZ, LB, ML, L, DL, UN}
 
 var definitions = map[Unit]definition{
 	G:  {Mass, 1},
@@ -43,6 +45,7 @@ var definitions = map[Unit]definition{
 	ML: {Volume, 1},
 	L:  {Volume, 1000},
 	DL: {Volume, 100},
+	UN: {Count, 1},
 }
 
 func Parse(s string) (Unit, bool) {

@@ -5,7 +5,7 @@ CREATE TABLE food_items (
     date       DATE             NOT NULL,
     meal       VARCHAR(16)      NOT NULL CHECK (meal IN ('breakfast', 'lunch', 'dinner', 'snacks')),
     amount     DOUBLE PRECISION NOT NULL CHECK (amount > 0),
-    unit       VARCHAR(4)       NOT NULL CHECK (unit IN ('g', 'kg', 'mg', 'ml', 'L', 'dL', 'oz', 'lb')),
+    unit       VARCHAR(4)       NOT NULL CHECK (unit IN ('g', 'kg', 'mg', 'ml', 'L', 'dL', 'oz', 'lb', 'un')),
     created_at TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ      NOT NULL DEFAULT NOW()
 );

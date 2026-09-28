@@ -63,7 +63,7 @@ var messages = map[string]map[Key]string{
 		Forbidden:            "acesso negado",
 		FoodNotFound:         "comida não encontrada",
 		FoodItemNotFound:     "item não encontrado",
-		InternalError:        "erro interno do servidor",
+		InternalError:        "Ocorreu um erro interno no servidor. Por favor, tente novamente.",
 	},
 	En: {
 		Required:             "is required",
@@ -88,7 +88,7 @@ var messages = map[string]map[Key]string{
 		Forbidden:            "access denied",
 		FoodNotFound:         "food not found",
 		FoodItemNotFound:     "item not found",
-		InternalError:        "internal server error",
+		InternalError:        "An internal server error occurred. Please try again.",
 	},
 }
 

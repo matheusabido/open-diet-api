@@ -63,10 +63,10 @@ func applyFood(food *model.Food, body dto.FoodDTO) {
 			food.Brand = &brand
 		}
 	}
-	food.Kcal = body.Kcal
-	food.Protein = body.Protein
-	food.Carbohydrate = body.Carbohydrate
-	food.Fat = body.Fat
-	food.Amount = body.Amount
+	food.Kcal = *body.Kcal
+	food.Protein = *body.Protein
+	food.Carbohydrate = *body.Carbohydrate
+	food.Fat = *body.Fat
+	food.Amount = *body.Amount
 	food.Unit, _ = unit.Parse(body.Unit)
 }

@@ -14,14 +14,14 @@ const (
 )
 
 type FoodDTO struct {
-	Name         string  `json:"name"`
-	Brand        *string `json:"brand"`
-	Kcal         float64 `json:"kcal"`
-	Protein      float64 `json:"protein"`
-	Carbohydrate float64 `json:"carbohydrate"`
-	Fat          float64 `json:"fat"`
-	Amount       float64 `json:"amount"`
-	Unit         string  `json:"unit"`
+	Name         string   `json:"name"`
+	Brand        *string  `json:"brand"`
+	Kcal         *float64 `json:"kcal"`
+	Protein      *float64 `json:"protein"`
+	Carbohydrate *float64 `json:"carbohydrate"`
+	Fat          *float64 `json:"fat"`
+	Amount       *float64 `json:"amount"`
+	Unit         string   `json:"unit"`
 }
 
 func (d FoodDTO) Validate(t i18n.Translator) validation.Errors {
@@ -34,18 +34,29 @@ func (d FoodDTO) Validate(t i18n.Translator) validation.Errors {
 		v.Check(validation.MaxLength(*d.Brand, 100), "brand", t(i18n.MaxLength, 100))
 	}
 
-	v.Check(validation.Between(d.Kcal, 0, maxNutrient), "kcal", t(i18n.Between, 0, maxNutrient))
-	v.Check(validation.Between(d.Protein, 0, maxNutrient), "protein", t(i18n.Between, 0, maxNutrient))
-	v.Check(validation.Between(d.Carbohydrate, 0, maxNutrient), "carbohydrate", t(i18n.Between, 0, maxNutrient))
-	v.Check(validation.Between(d.Fat, 0, maxNutrient), "fat", t(i18n.Between, 0, maxNutrient))
+	checkNutrient(v, t, "kcal", d.Kcal)
+	checkNutrient(v, t, "protein", d.Protein)
+	checkNutrient(v, t, "carbohydrate", d.Carbohydrate)
+	checkNutrient(v, t, "fat", d.Fat)
 
-	v.Check(validation.GreaterThan(d.Amount, 0), "amount", t(i18n.GreaterThan, 0))
-	v.Check(validation.Max(d.Amount, maxAmount), "amount", t(i18n.MaxValue, maxAmount))
+	v.Check(d.Amount != nil, "amount", t(i18n.Required))
+	if d.Amount != nil {
+		v.Check(validation.GreaterThan(*d.Amount, 0), "amount", t(i18n.GreaterThan, 0))
+		v.Check(validation.Max(*d.Amount, maxAmount), "amount", t(i18n.MaxValue, maxAmount))
+	}
 
 	_, ok := unit.Parse(d.Unit)
 	v.Check(ok, "unit", t(i18n.InvalidUnit, strings.Join(unit.Names(), ", ")))
 
 	return v.Errors()
+}
+
+func checkNutrient(v *validation.Validator, t i18n.Translator, field string, value *float64) {
+	v.Check(value != nil, field, t(i18n.Required))
+	if value == nil {
+		return
+	}
+	v.Check(validation.Between(*value, 0, maxNutrient), field, t(i18n.Between, 0, maxNutrient))
 }
 
 type FoodListQueryDTO struct {
