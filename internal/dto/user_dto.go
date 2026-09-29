@@ -26,7 +26,7 @@ func (d UserRegisterDTO) Validate(t i18n.Translator) validation.Errors {
 	v := validation.New()
 
 	v.Check(validation.NotBlank(d.Username), "username", t(i18n.Required))
-	v.Check(validation.MinLength(d.Username, 3), "username", t(i18n.MinLength, 3))
+	v.Check(validation.MinLength(d.Username, 5), "username", t(i18n.MinLength, 5))
 	v.Check(validation.MaxLength(d.Username, 32), "username", t(i18n.MaxLength, 32))
 	v.Check(validation.Matches(d.Username, usernameRegex), "username", t(i18n.UsernameCharset))
 
@@ -52,7 +52,7 @@ func (d UserPasswordUpdateDTO) Validate(t i18n.Translator) validation.Errors {
 
 func checkPassword(v *validation.Validator, t i18n.Translator, password, confirmation string) {
 	v.Check(validation.NotBlank(password), "password", t(i18n.Required))
-	v.Check(validation.MinLength(password, 8), "password", t(i18n.MinLength, 8))
+	v.Check(validation.MinLength(password, 6), "password", t(i18n.MinLength, 6))
 	v.Check(validation.MaxLength(password, 72), "password", t(i18n.MaxLength, 72))
 	v.Check(validation.Matches(password, passwordRegex), "password", t(i18n.PasswordCharset, passwordSpecialChars))
 
@@ -94,6 +94,12 @@ func (d UserLoginDTO) Validate(t i18n.Translator) validation.Errors {
 
 	v.Check(validation.NotBlank(d.Username), "username", t(i18n.Required))
 	v.Check(validation.NotBlank(d.Password), "password", t(i18n.Required))
+
+	v.Check(validation.MinLength(d.Username, 5), "username", t(i18n.MinLength, 5))
+	v.Check(validation.MinLength(d.Password, 6), "password", t(i18n.MinLength, 6))
+
+	v.Check(validation.MaxLength(d.Username, 32), "username", t(i18n.MaxLength, 32))
+	v.Check(validation.MaxLength(d.Password, 72), "password", t(i18n.MaxLength, 72))
 
 	return v.Errors()
 }

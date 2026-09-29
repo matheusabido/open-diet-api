@@ -55,7 +55,7 @@ func (r *FoodItemRepository) ListByDate(ctx context.Context, userID uint64, date
 	rows, err := r.db.Query(ctx,
 		foodItemSelect+`
 		 WHERE fi.user_id = $1 AND fi.date = $2::date
-		 ORDER BY array_position(ARRAY['breakfast', 'lunch', 'dinner', 'snacks'], fi.meal::text), fi.id
+		 ORDER BY fi.id
 		 LIMIT $3`,
 		userID, date, foodItemPageSize,
 	)
