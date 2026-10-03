@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"strings"
 
 	"github.com/matheusabido/open-diet-api/internal/dto"
@@ -62,8 +63,6 @@ func NewFoodScanService(groq *groq.Client, off *openfoodfacts.Client) *FoodScanS
 	return &FoodScanService{groq: groq, off: off}
 }
 
-// FromPhoto reads the photo of a nutrition label. The values are the ones of
-// the serving, or the ones per 100 g/ml when the label has no serving.
 func (s *FoodScanService) FromPhoto(ctx context.Context, photo io.Reader) (*dto.FoodDraftDTO, error) {
 	image, err := io.ReadAll(photo)
 	if err != nil {
@@ -80,7 +79,7 @@ func (s *FoodScanService) FromPhoto(ctx context.Context, photo io.Reader) (*dto.
 		return nil, fmt.Errorf("read label: %w: %s", err, answer)
 	}
 
-	for _, values := range []*labelValues{read.Serving, read.Per100} {
+	for _, values := range []*labelValues{read.Per100, read.Serving} {
 		if !read.Found || values == nil {
 			continue
 		}
@@ -104,8 +103,6 @@ func (s *FoodScanService) FromPhoto(ctx context.Context, photo io.Reader) (*dto.
 	return nil, ErrLabelNotFound
 }
 
-// FromBarcode looks the product up on Open Food Facts. Like FromPhoto, it
-// prefers the values of the serving over the ones per 100 g/ml.
 func (s *FoodScanService) FromBarcode(ctx context.Context, barcode string) (*dto.FoodDraftDTO, error) {
 	product, err := s.off.Product(ctx, barcode)
 	if err != nil {
@@ -128,24 +125,32 @@ func (s *FoodScanService) FromBarcode(ctx context.Context, barcode string) (*dto
 
 	serving, _ := product.ServingQuantity.Float64()
 	servingUnit, ok := unit.Parse(product.ServingQuantityUnit)
-	if ok && serving > 0 && serving <= maxAmount && product.Nutriment("energy-kcal_serving") != nil {
+	hasServing := ok && serving > 0 && serving <= maxAmount && product.Nutriment("energy-kcal_serving") != nil
+	if product.Nutriment("energy-kcal_100g") == nil && hasServing {
 		suffix, amount, itemUnit = "_serving", serving, servingUnit
 	}
 
 	food.Amount = &amount
 	food.Unit = itemUnit
-	food.Kcal = valid(product.Nutriment("energy-kcal"+suffix), maxNutrient)
-	food.Protein = valid(product.Nutriment("proteins"+suffix), maxNutrient)
-	food.Carbohydrate = valid(product.Nutriment("carbohydrates"+suffix), maxNutrient)
-	food.Fat = valid(product.Nutriment("fat"+suffix), maxNutrient)
+	food.Kcal = round(valid(product.Nutriment("energy-kcal"+suffix), maxNutrient))
+	food.Protein = round(valid(product.Nutriment("proteins"+suffix), maxNutrient))
+	food.Carbohydrate = round(valid(product.Nutriment("carbohydrates"+suffix), maxNutrient))
+	food.Fat = round(valid(product.Nutriment("fat"+suffix), maxNutrient))
 
 	return food, nil
 }
 
-// valid drops the values the food form would refuse.
 func valid(value *float64, max float64) *float64 {
 	if value == nil || *value < 0 || *value > max {
 		return nil
 	}
 	return value
+}
+
+func round(value *float64) *float64 {
+	if value == nil {
+		return nil
+	}
+	rounded := math.Round(*value*10) / 10
+	return &rounded
 }

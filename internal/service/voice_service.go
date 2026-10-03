@@ -26,8 +26,6 @@ func NewVoiceService(transcriber *whisper.Transcriber, aliasRepo *repository.Foo
 	return &VoiceService{transcriber: transcriber, aliasRepo: aliasRepo, foodRepo: foodRepo}
 }
 
-// FoodItem turns the audio into the data of a food item. The food comes from
-// the alias the user linked to the spoken name, and is nil while there is no link.
 func (s *VoiceService) FoodItem(ctx context.Context, userID uint64, audio io.Reader) (*dto.VoiceFoodItemDTO, error) {
 	text, err := s.transcriber.Transcribe(ctx, audio)
 	if err != nil {
@@ -45,7 +43,7 @@ func (s *VoiceService) FoodItem(ctx context.Context, userID uint64, audio io.Rea
 		return nil, err
 	}
 
-	item := &dto.VoiceFoodItemDTO{AliasID: alias.ID, Amount: amount, Unit: itemUnit}
+	item := &dto.VoiceFoodItemDTO{AliasID: alias.ID, Name: alias.Name, Amount: amount, Unit: itemUnit}
 	if alias.FoodID != nil {
 		if item.Food, err = s.foodRepo.FindByID(ctx, *alias.FoodID); err != nil {
 			return nil, err

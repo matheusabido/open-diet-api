@@ -29,8 +29,6 @@ type Product struct {
 	NutritionDataPer    string         `json:"nutrition_data_per"`
 }
 
-// Nutriment returns a value such as "proteins_100g" or "energy-kcal_serving".
-// Open Food Facts sends the numbers either as numbers or as strings.
 func (p *Product) Nutriment(key string) *float64 {
 	var value float64
 	switch raw := p.Nutriments[key].(type) {

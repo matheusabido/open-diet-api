@@ -43,10 +43,6 @@ var numbers = map[string]float64{
 
 var prepositions = map[string]bool{"de": true, "do": true, "da": true, "dos": true, "das": true}
 
-// Parse reads a sentence in the format "amount, unit, food", such as
-// "100 gramas de frango", "100 ml leite" or "2 onças tomate". Without a unit
-// the amount counts units ("2 ovos"). The name comes back normalized: lower
-// case and without accents.
 func Parse(text string) (amount float64, u unit.Unit, name string, ok bool) {
 	words := tokenize(text)
 
@@ -77,8 +73,6 @@ func Parse(text string) (amount float64, u unit.Unit, name string, ok bool) {
 	return amount, u, strings.Join(words, " "), true
 }
 
-// Normalize lowers the case and drops the accents, so the same words always
-// produce the same text.
 func Normalize(text string) string {
 	var b strings.Builder
 	for _, r := range norm.NFD.String(strings.ToLower(text)) {
@@ -99,9 +93,6 @@ func tokenize(text string) []string {
 	return words
 }
 
-// parseAmount reads the amount at the start of the sentence, written in digits
-// ("100", "1,5", "100g") or in words ("cento e cinquenta"). It returns the
-// unit glued to the digits, if any, and the words left.
 func parseAmount(words []string) (amount float64, suffix string, rest []string) {
 	if len(words) == 0 {
 		return 0, "", nil

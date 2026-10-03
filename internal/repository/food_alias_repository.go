@@ -19,8 +19,6 @@ func NewFoodAliasRepository(db *pgxpool.Pool) *FoodAliasRepository {
 	return &FoodAliasRepository{db: db}
 }
 
-// FindOrCreate returns the user's alias with the given name, creating it
-// without a food when the user never said that name before.
 func (r *FoodAliasRepository) FindOrCreate(ctx context.Context, userID uint64, name string) (*model.FoodAlias, error) {
 	alias := &model.FoodAlias{UserID: userID, Name: name}
 	err := r.db.QueryRow(ctx,

@@ -2,8 +2,6 @@ package model
 
 import "time"
 
-// FoodAlias links what the user says to a food. The name never leaves the
-// API, and the food is nil until the user links it.
 type FoodAlias struct {
 	ID     uint64  `json:"id"`
 	UserID uint64  `json:"-"`

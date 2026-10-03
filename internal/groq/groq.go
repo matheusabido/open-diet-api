@@ -66,7 +66,6 @@ type response struct {
 	} `json:"choices"`
 }
 
-// Vision asks the model about an image and returns its answer, a JSON object.
 func (c *Client) Vision(ctx context.Context, prompt string, image []byte) (string, error) {
 	if !c.Configured() {
 		return "", errors.New("groq: GROQ_KEY is not set")

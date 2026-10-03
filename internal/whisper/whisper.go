@@ -16,8 +16,6 @@ const (
 	timeout  = 60 * time.Second
 	language = "pt"
 
-	// whisper.cpp only reads 16 kHz mono 16-bit PCM. The filters drop the
-	// frequencies outside the voice range.
 	filters = "highpass=f=80,lowpass=f=7600"
 
 	// The encoder always processes a full 30 s window. The audio context cuts
@@ -26,7 +24,6 @@ const (
 	maxDuration  = "15"
 	audioContext = "768"
 
-	// Biases the model towards digits and the "amount, unit, food" format.
 	prompt = "100 gramas de frango. 200 ml de leite. 2 onças de tomate. 1 unidade de ovo."
 )
 

@@ -37,6 +37,7 @@ func (d FoodItemDTO) Validate(t i18n.Translator) validation.Errors {
 
 type VoiceFoodItemDTO struct {
 	AliasID uint64      `json:"alias_id"`
+	Name    string      `json:"name"`
 	Food    *model.Food `json:"food"`
 	Amount  float64     `json:"amount"`
 	Unit    unit.Unit   `json:"unit"`
