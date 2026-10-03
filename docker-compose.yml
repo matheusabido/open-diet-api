@@ -1,0 +1,16 @@
+name: open-diet-api-server
+
+services:
+  api:
+    build: .
+    image: open-diet-api
+    container_name: open-diet-api
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ${WHISPER_DIR}:${WHISPER_DIR}:ro
+      - ${WHISPER_MODEL_PATH}:${WHISPER_MODEL_PATH}:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${API_PORT:-3000}:3000"
