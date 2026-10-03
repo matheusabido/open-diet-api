@@ -15,6 +15,7 @@ const (
 	IncompatibleUnit     Key = "incompatible_unit"
 	InvalidISODate       Key = "invalid_iso_date"
 	InvalidMeal          Key = "invalid_meal"
+	InvalidOption        Key = "invalid_option"
 	UsernameCharset      Key = "username_charset"
 	PasswordCharset      Key = "password_charset"
 	PasswordConfirmation Key = "password_confirmation"
@@ -59,6 +60,7 @@ var messages = map[string]map[Key]string{
 		IncompatibleUnit:     "deve ser compatível com a unidade da comida: %s",
 		InvalidISODate:       "deve ser uma data ISO 8601 (ex: 2026-01-31)",
 		InvalidMeal:          "deve ser uma das refeições: %s",
+		InvalidOption:        "deve ser um dos valores: %s",
 		UsernameCharset:      "deve conter apenas letras, números, '_' e '.'",
 		PasswordCharset:      "deve conter apenas letras, números e os caracteres especiais %s",
 		PasswordConfirmation: "deve ser igual à senha",
@@ -92,6 +94,7 @@ var messages = map[string]map[Key]string{
 		IncompatibleUnit:     "must be compatible with the food unit: %s",
 		InvalidISODate:       "must be an ISO 8601 date (e.g. 2026-01-31)",
 		InvalidMeal:          "must be one of the meals: %s",
+		InvalidOption:        "must be one of: %s",
 		UsernameCharset:      "may only contain letters, numbers, '_' and '.'",
 		PasswordCharset:      "may only contain letters, numbers and the special characters %s",
 		PasswordConfirmation: "must match password",

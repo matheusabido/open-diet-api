@@ -3,6 +3,7 @@ package dto
 import (
 	"math"
 	"regexp"
+	"strings"
 
 	"github.com/matheusabido/open-diet-api/internal/i18n"
 	"github.com/matheusabido/open-diet-api/internal/model"
@@ -15,6 +16,17 @@ var (
 )
 
 const passwordSpecialChars = "!@#$%^&*()_+-=.,?"
+
+const (
+	minAge = 1
+	maxAge = 120
+
+	minWeight = 20.0
+	maxWeight = 500.0
+
+	minHeight = 50
+	maxHeight = 300
+)
 
 type UserRegisterDTO struct {
 	Username             string `json:"username"`
@@ -64,6 +76,13 @@ type UserUpdateDTO struct {
 	ProteinGoal      *int `json:"protein_goal"`
 	CarbohydrateGoal *int `json:"carbohydrate_goal"`
 	FatGoal          *int `json:"fat_goal"`
+
+	Sex           *string  `json:"sex"`
+	Age           *int     `json:"age"`
+	Weight        *float64 `json:"weight"`
+	Height        *int     `json:"height"`
+	ActivityLevel *string  `json:"activity_level"`
+	Objective     *string  `json:"objective"`
 }
 
 func (d UserUpdateDTO) Validate(t i18n.Translator) validation.Errors {
@@ -74,7 +93,34 @@ func (d UserUpdateDTO) Validate(t i18n.Translator) validation.Errors {
 	checkGoal(v, t, "carbohydrate_goal", d.CarbohydrateGoal)
 	checkGoal(v, t, "fat_goal", d.FatGoal)
 
+	if d.Sex != nil {
+		v.Check(model.Sex(*d.Sex).Valid(), "sex", t(i18n.InvalidOption, optionNames(model.Sexes)))
+	}
+	if d.Age != nil {
+		v.Check(validation.Between(*d.Age, minAge, maxAge), "age", t(i18n.Between, minAge, maxAge))
+	}
+	if d.Weight != nil {
+		v.Check(validation.Between(*d.Weight, minWeight, maxWeight), "weight", t(i18n.Between, minWeight, maxWeight))
+	}
+	if d.Height != nil {
+		v.Check(validation.Between(*d.Height, minHeight, maxHeight), "height", t(i18n.Between, minHeight, maxHeight))
+	}
+	if d.ActivityLevel != nil {
+		v.Check(model.ActivityLevel(*d.ActivityLevel).Valid(), "activity_level", t(i18n.InvalidOption, optionNames(model.ActivityLevels)))
+	}
+	if d.Objective != nil {
+		v.Check(model.Objective(*d.Objective).Valid(), "objective", t(i18n.InvalidOption, optionNames(model.Objectives)))
+	}
+
 	return v.Errors()
+}
+
+func optionNames[T ~string](options []T) string {
+	names := make([]string, len(options))
+	for i, option := range options {
+		names[i] = string(option)
+	}
+	return strings.Join(names, ", ")
 }
 
 func checkGoal(v *validation.Validator, t i18n.Translator, field string, value *int) {

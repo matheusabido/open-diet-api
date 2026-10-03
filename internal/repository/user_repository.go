@@ -17,6 +17,17 @@ var (
 
 const uniqueViolation = "23505"
 
+const userColumns = `id, username, password, role, kcal_goal, protein_goal, carbohydrate_goal, fat_goal,
+	sex, age, weight, height, activity_level, objective`
+
+func userFields(user *model.User) []any {
+	return []any{
+		&user.ID, &user.Username, &user.Password, &user.Role,
+		&user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal,
+		&user.Sex, &user.Age, &user.Weight, &user.Height, &user.ActivityLevel, &user.Objective,
+	}
+}
+
 type UserRepository struct {
 	db *pgxpool.Pool
 }
@@ -44,11 +55,11 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*model.User, error) {
 	user := &model.User{}
 	err := r.db.QueryRow(ctx,
-		`SELECT id, username, password, role, kcal_goal, protein_goal, carbohydrate_goal, fat_goal
+		`SELECT `+userColumns+`
 		 FROM users
 		 WHERE username = $1`,
 		username,
-	).Scan(&user.ID, &user.Username, &user.Password, &user.Role, &user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal)
+	).Scan(userFields(user)...)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrUserNotFound
@@ -63,11 +74,11 @@ func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*
 func (r *UserRepository) FindByID(ctx context.Context, id uint64) (*model.User, error) {
 	user := &model.User{}
 	err := r.db.QueryRow(ctx,
-		`SELECT id, username, password, role, kcal_goal, protein_goal, carbohydrate_goal, fat_goal
+		`SELECT `+userColumns+`
 		 FROM users
 		 WHERE id = $1`,
 		id,
-	).Scan(&user.ID, &user.Username, &user.Password, &user.Role, &user.KcalGoal, &user.ProteinGoal, &user.CarbohydrateGoal, &user.FatGoal)
+	).Scan(userFields(user)...)
 
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrUserNotFound
@@ -88,9 +99,12 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, id uint64, password
 func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	_, err := r.db.Exec(ctx,
 		`UPDATE users
-		 SET kcal_goal = $1, protein_goal = $2, carbohydrate_goal = $3, fat_goal = $4
-		 WHERE id = $5`,
-		user.KcalGoal, user.ProteinGoal, user.CarbohydrateGoal, user.FatGoal, user.ID,
+		 SET kcal_goal = $1, protein_goal = $2, carbohydrate_goal = $3, fat_goal = $4,
+		     sex = $5, age = $6, weight = $7, height = $8, activity_level = $9, objective = $10
+		 WHERE id = $11`,
+		user.KcalGoal, user.ProteinGoal, user.CarbohydrateGoal, user.FatGoal,
+		user.Sex, user.Age, user.Weight, user.Height, user.ActivityLevel, user.Objective,
+		user.ID,
 	)
 
 	return err

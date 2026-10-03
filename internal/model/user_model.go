@@ -10,4 +10,11 @@ type User struct {
 	ProteinGoal      uint16 `json:"protein_goal"`
 	CarbohydrateGoal uint16 `json:"carbohydrate_goal"`
 	FatGoal          uint16 `json:"fat_goal"`
+
+	Sex           *Sex           `json:"sex"`
+	Age           *uint16        `json:"age"`
+	Weight        *float64       `json:"weight"`
+	Height        *uint16        `json:"height"`
+	ActivityLevel *ActivityLevel `json:"activity_level"`
+	Objective     *Objective     `json:"objective"`
 }

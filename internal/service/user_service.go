@@ -96,6 +96,29 @@ func (s *UserService) Update(ctx context.Context, current *model.User, body dto.
 	if body.FatGoal != nil {
 		user.FatGoal = uint16(*body.FatGoal)
 	}
+	if body.Sex != nil {
+		sex := model.Sex(*body.Sex)
+		user.Sex = &sex
+	}
+	if body.Age != nil {
+		age := uint16(*body.Age)
+		user.Age = &age
+	}
+	if body.Weight != nil {
+		user.Weight = body.Weight
+	}
+	if body.Height != nil {
+		height := uint16(*body.Height)
+		user.Height = &height
+	}
+	if body.ActivityLevel != nil {
+		activityLevel := model.ActivityLevel(*body.ActivityLevel)
+		user.ActivityLevel = &activityLevel
+	}
+	if body.Objective != nil {
+		objective := model.Objective(*body.Objective)
+		user.Objective = &objective
+	}
 
 	if err := s.repo.Update(ctx, &user); err != nil {
 		return nil, err
