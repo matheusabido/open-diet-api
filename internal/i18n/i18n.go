@@ -28,6 +28,12 @@ const (
 	Forbidden            Key = "forbidden"
 	FoodNotFound         Key = "food_not_found"
 	FoodItemNotFound     Key = "food_item_not_found"
+	FoodAliasNotFound    Key = "food_alias_not_found"
+	VoiceNotUnderstood   Key = "voice_not_understood"
+	InvalidBarcode       Key = "invalid_barcode"
+	ProductNotFound      Key = "product_not_found"
+	LabelNotFound        Key = "label_not_found"
+	TooManyRequests      Key = "too_many_requests"
 	InternalError        Key = "internal_error"
 )
 
@@ -65,6 +71,12 @@ var messages = map[string]map[Key]string{
 		Forbidden:            "acesso negado",
 		FoodNotFound:         "comida não encontrada",
 		FoodItemNotFound:     "item não encontrado",
+		FoodAliasNotFound:    "vínculo não encontrado",
+		InvalidBarcode:       "deve ter entre 8 e 14 dígitos",
+		ProductNotFound:      "Produto não encontrado no Open Food Facts.",
+		LabelNotFound:        "Não foi possível ler a tabela nutricional. Tente outra foto.",
+		VoiceNotUnderstood:   "Não entendi. Diga quantidade, unidade e alimento (ex: 100 gramas de frango).",
+		TooManyRequests:      "Muitas fotos em pouco tempo. Aguarde um minuto e tente novamente.",
 		InternalError:        "Ocorreu um erro interno no servidor. Por favor, tente novamente.",
 	},
 	En: {
@@ -91,6 +103,12 @@ var messages = map[string]map[Key]string{
 		Forbidden:            "access denied",
 		FoodNotFound:         "food not found",
 		FoodItemNotFound:     "item not found",
+		FoodAliasNotFound:    "alias not found",
+		InvalidBarcode:       "must have between 8 and 14 digits",
+		ProductNotFound:      "Product not found on Open Food Facts.",
+		LabelNotFound:        "Could not read the nutrition label. Try another photo.",
+		VoiceNotUnderstood:   "Could not understand. Say amount, unit and food (e.g. 100 grams of chicken).",
+		TooManyRequests:      "Too many photos in a short time. Wait a minute and try again.",
 		InternalError:        "An internal server error occurred. Please try again.",
 	},
 }

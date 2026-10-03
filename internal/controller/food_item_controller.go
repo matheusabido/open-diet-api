@@ -16,10 +16,11 @@ import (
 
 type FoodItemController struct {
 	service *service.FoodItemService
+	voice   *service.VoiceService
 }
 
-func NewFoodItemController(service *service.FoodItemService) *FoodItemController {
-	return &FoodItemController{service: service}
+func NewFoodItemController(service *service.FoodItemService, voice *service.VoiceService) *FoodItemController {
+	return &FoodItemController{service: service, voice: voice}
 }
 
 func (f *FoodItemController) Create(c fiber.Ctx) error {
@@ -40,6 +41,28 @@ func (f *FoodItemController) Create(c fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(item)
+}
+
+func (f *FoodItemController) Voice(c fiber.Ctx) error {
+	t := translator(c)
+
+	header, err := c.FormFile("audio")
+	if err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"errors": validation.Errors{"audio": {t(i18n.Required)}}})
+	}
+
+	audio, err := header.Open()
+	if err != nil {
+		return f.writeError(c, t, "voice food item", err)
+	}
+	defer audio.Close()
+
+	item, err := f.voice.FoodItem(c.Context(), middleware.User(c).ID, audio)
+	if err != nil {
+		return f.writeError(c, t, "voice food item", err)
+	}
+
+	return c.JSON(item)
 }
 
 func (f *FoodItemController) List(c fiber.Ctx) error {
@@ -110,6 +133,8 @@ func (f *FoodItemController) writeError(c fiber.Ctx, t i18n.Translator, action s
 	switch {
 	case errors.Is(err, repository.ErrFoodItemNotFound):
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": t(i18n.FoodItemNotFound)})
+	case errors.Is(err, service.ErrVoiceNotUnderstood):
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"error": t(i18n.VoiceNotUnderstood)})
 	case errors.Is(err, repository.ErrFoodNotFound):
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"errors": validation.Errors{"food_id": {t(i18n.FoodNotFound)}}})
 	case errors.As(err, &incompatible):

@@ -59,6 +59,19 @@ func checkNutrient(v *validation.Validator, t i18n.Translator, field string, val
 	v.Check(validation.Between(*value, 0, maxNutrient), field, t(i18n.Between, 0, maxNutrient))
 }
 
+// FoodDraftDTO is what could be read from a barcode or a photo to fill the
+// food form. The fields that could not be read are left empty.
+type FoodDraftDTO struct {
+	Name         string    `json:"name"`
+	Brand        *string   `json:"brand"`
+	Kcal         *float64  `json:"kcal"`
+	Protein      *float64  `json:"protein"`
+	Carbohydrate *float64  `json:"carbohydrate"`
+	Fat          *float64  `json:"fat"`
+	Amount       *float64  `json:"amount"`
+	Unit         unit.Unit `json:"unit"`
+}
+
 type FoodListQueryDTO struct {
 	Search string `query:"search"`
 	After  uint64 `query:"after"`
