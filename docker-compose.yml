@@ -1,7 +1,7 @@
 name: open-diet-api-server
 
 services:
-  api:
+  open-diet-api:
     build: .
     image: open-diet-api
     container_name: open-diet-api
