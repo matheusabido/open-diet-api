@@ -28,9 +28,9 @@ func main() {
 		logrus.Fatal("JWT_SECRET environment variable is required")
 	}
 
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		logrus.Fatal("DATABASE_URL environment variable is required")
+	databaseConfig, err := database.ConfigFromEnv()
+	if err != nil {
+		logrus.Fatal(err)
 	}
 
 	transcriber := whisper.New(os.Getenv("WHISPER_CLI_PATH"), os.Getenv("WHISPER_MODEL_PATH"))
@@ -45,7 +45,7 @@ func main() {
 
 	ctx := context.Background()
 
-	db, err := database.Connect(ctx, databaseURL)
+	db, err := database.Connect(ctx, databaseConfig)
 	if err != nil {
 		logrus.Fatalf("Could not connect to database: %v", err)
 	}

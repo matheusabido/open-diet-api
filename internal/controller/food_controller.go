@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"regexp"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/matheusabido/open-diet-api/internal/dto"
@@ -15,8 +14,6 @@ import (
 	"github.com/matheusabido/open-diet-api/internal/validation"
 	"github.com/sirupsen/logrus"
 )
-
-var barcodePattern = regexp.MustCompile(`^\d{8,14}$`)
 
 type FoodController struct {
 	service *service.FoodService
@@ -31,11 +28,20 @@ func (f *FoodController) Barcode(c fiber.Ctx) error {
 	t := translator(c)
 
 	barcode := c.Params("barcode")
-	if !barcodePattern.MatchString(barcode) {
+	if !dto.BarcodePattern.MatchString(barcode) {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{"errors": validation.Errors{"barcode": {t(i18n.InvalidBarcode)}}})
 	}
 
-	food, err := f.scan.FromBarcode(c.Context(), barcode)
+	food, err := f.service.FindByBarcode(c.Context(), barcode)
+	if err == nil {
+		return c.JSON(dto.FoodBarcodeDTO{Food: food})
+	}
+	if !errors.Is(err, repository.ErrFoodNotFound) {
+		logrus.Errorf("food from barcode: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": t(i18n.InternalError)})
+	}
+
+	draft, err := f.scan.FromBarcode(c.Context(), barcode)
 	if errors.Is(err, openfoodfacts.ErrProductNotFound) {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": t(i18n.ProductNotFound)})
 	}
@@ -44,7 +50,7 @@ func (f *FoodController) Barcode(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": t(i18n.InternalError)})
 	}
 
-	return c.JSON(food)
+	return c.JSON(dto.FoodBarcodeDTO{Draft: draft})
 }
 
 func (f *FoodController) Photo(c fiber.Ctx) error {
@@ -90,6 +96,9 @@ func (f *FoodController) Create(c fiber.Ctx) error {
 	}
 
 	food, err := f.service.Create(c.Context(), middleware.User(c).ID, body)
+	if errors.Is(err, repository.ErrBarcodeTaken) {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": t(i18n.BarcodeTaken)})
+	}
 	if err != nil {
 		logrus.Errorf("create food: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": t(i18n.InternalError)})

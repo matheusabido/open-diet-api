@@ -31,6 +31,7 @@ const (
 	FoodAliasNotFound    Key = "food_alias_not_found"
 	VoiceNotUnderstood   Key = "voice_not_understood"
 	InvalidBarcode       Key = "invalid_barcode"
+	BarcodeTaken         Key = "barcode_taken"
 	ProductNotFound      Key = "product_not_found"
 	LabelNotFound        Key = "label_not_found"
 	TooManyRequests      Key = "too_many_requests"
@@ -73,6 +74,7 @@ var messages = map[string]map[Key]string{
 		FoodItemNotFound:     "item não encontrado",
 		FoodAliasNotFound:    "vínculo não encontrado",
 		InvalidBarcode:       "deve ter entre 8 e 14 dígitos",
+		BarcodeTaken:         "Já existe um alimento com este código de barras.",
 		ProductNotFound:      "Produto não encontrado no Open Food Facts.",
 		LabelNotFound:        "Não foi possível ler a tabela nutricional. Tente outra foto.",
 		VoiceNotUnderstood:   "Não entendi. Diga quantidade, unidade e alimento (ex: 100 gramas de frango).",
@@ -105,6 +107,7 @@ var messages = map[string]map[Key]string{
 		FoodItemNotFound:     "item not found",
 		FoodAliasNotFound:    "alias not found",
 		InvalidBarcode:       "must have between 8 and 14 digits",
+		BarcodeTaken:         "There is already a food with this barcode.",
 		ProductNotFound:      "Product not found on Open Food Facts.",
 		LabelNotFound:        "Could not read the nutrition label. Try another photo.",
 		VoiceNotUnderstood:   "Could not understand. Say amount, unit and food (e.g. 100 grams of chicken).",

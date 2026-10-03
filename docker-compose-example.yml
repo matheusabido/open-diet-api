@@ -7,9 +7,6 @@ services:
     container_name: open-diet-api
     restart: unless-stopped
     env_file: .env
-    volumes:
-      - ${WHISPER_DIR}:${WHISPER_DIR}:ro
-      - ${WHISPER_MODEL_PATH}:${WHISPER_MODEL_PATH}:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

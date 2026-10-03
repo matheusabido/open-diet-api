@@ -98,7 +98,7 @@ func scanFoodItem(row pgx.CollectableRow) (*model.FoodItem, error) {
 	item := &model.FoodItem{Food: &model.Food{}}
 	food := item.Food
 	err := row.Scan(&item.ID, &item.UserID, &item.FoodID, &item.Date, &item.Meal, &item.Amount, &item.Unit, &item.CreatedAt, &item.UpdatedAt,
-		&food.ID, &food.Name, &food.Brand, &food.Kcal, &food.Protein, &food.Carbohydrate, &food.Fat,
+		&food.ID, &food.Name, &food.Brand, &food.Barcode, &food.Kcal, &food.Protein, &food.Carbohydrate, &food.Fat,
 		&food.Amount, &food.Unit, &food.CreatedBy, &food.CreatedAt, &food.UpdatedAt)
 	return item, err
 }

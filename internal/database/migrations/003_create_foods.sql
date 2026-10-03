@@ -2,6 +2,7 @@ CREATE TABLE foods (
     id           BIGSERIAL PRIMARY KEY,
     name         VARCHAR(100)     NOT NULL,
     brand        VARCHAR(100),
+    barcode      VARCHAR(14)      UNIQUE,
     kcal         DOUBLE PRECISION NOT NULL CHECK (kcal >= 0),
     protein      DOUBLE PRECISION NOT NULL CHECK (protein >= 0),
     carbohydrate DOUBLE PRECISION NOT NULL CHECK (carbohydrate >= 0),

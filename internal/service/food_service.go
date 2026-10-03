@@ -19,7 +19,7 @@ func NewFoodService(repo *repository.FoodRepository) *FoodService {
 }
 
 func (s *FoodService) Create(ctx context.Context, userID uint64, body dto.FoodDTO) (*model.Food, error) {
-	food := &model.Food{CreatedBy: &userID}
+	food := &model.Food{Barcode: body.Barcode, CreatedBy: &userID}
 	applyFood(food, body)
 
 	if err := s.repo.Create(ctx, food); err != nil {
@@ -31,6 +31,10 @@ func (s *FoodService) Create(ctx context.Context, userID uint64, body dto.FoodDT
 
 func (s *FoodService) FindByID(ctx context.Context, id uint64) (*model.Food, error) {
 	return s.repo.FindByID(ctx, id)
+}
+
+func (s *FoodService) FindByBarcode(ctx context.Context, barcode string) (*model.Food, error) {
+	return s.repo.FindByBarcode(ctx, barcode)
 }
 
 func (s *FoodService) List(ctx context.Context, query dto.FoodListQueryDTO) ([]*model.Food, error) {

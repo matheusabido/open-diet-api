@@ -1,9 +1,11 @@
 package dto
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/matheusabido/open-diet-api/internal/i18n"
+	"github.com/matheusabido/open-diet-api/internal/model"
 	"github.com/matheusabido/open-diet-api/internal/unit"
 	"github.com/matheusabido/open-diet-api/internal/validation"
 )
@@ -13,9 +15,12 @@ const (
 	maxAmount   = 100000
 )
 
+var BarcodePattern = regexp.MustCompile(`^\d{8,14}$`)
+
 type FoodDTO struct {
 	Name         string   `json:"name"`
 	Brand        *string  `json:"brand"`
+	Barcode      *string  `json:"barcode"`
 	Kcal         *float64 `json:"kcal"`
 	Protein      *float64 `json:"protein"`
 	Carbohydrate *float64 `json:"carbohydrate"`
@@ -32,6 +37,10 @@ func (d FoodDTO) Validate(t i18n.Translator) validation.Errors {
 
 	if d.Brand != nil {
 		v.Check(validation.MaxLength(*d.Brand, 100), "brand", t(i18n.MaxLength, 100))
+	}
+
+	if d.Barcode != nil {
+		v.Check(validation.Matches(*d.Barcode, BarcodePattern), "barcode", t(i18n.InvalidBarcode))
 	}
 
 	checkNutrient(v, t, "kcal", d.Kcal)
@@ -62,12 +71,18 @@ func checkNutrient(v *validation.Validator, t i18n.Translator, field string, val
 type FoodDraftDTO struct {
 	Name         string    `json:"name"`
 	Brand        *string   `json:"brand"`
+	Barcode      *string   `json:"barcode"`
 	Kcal         *float64  `json:"kcal"`
 	Protein      *float64  `json:"protein"`
 	Carbohydrate *float64  `json:"carbohydrate"`
 	Fat          *float64  `json:"fat"`
 	Amount       *float64  `json:"amount"`
 	Unit         unit.Unit `json:"unit"`
+}
+
+type FoodBarcodeDTO struct {
+	Food  *model.Food   `json:"food"`
+	Draft *FoodDraftDTO `json:"draft"`
 }
 
 type FoodListQueryDTO struct {

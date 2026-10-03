@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/matheusabido/open-diet-api/internal/database"
@@ -14,14 +13,14 @@ func main() {
 		logrus.Warnf("Could not load .env file: %v", err)
 	}
 
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		logrus.Fatal("DATABASE_URL environment variable is required")
+	databaseConfig, err := database.ConfigFromEnv()
+	if err != nil {
+		logrus.Fatal(err)
 	}
 
 	ctx := context.Background()
 
-	db, err := database.Connect(ctx, databaseURL)
+	db, err := database.Connect(ctx, databaseConfig)
 	if err != nil {
 		logrus.Fatalf("Could not connect to database: %v", err)
 	}

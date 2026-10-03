@@ -7,9 +7,10 @@ import (
 )
 
 type Food struct {
-	ID    uint64  `json:"id"`
-	Name  string  `json:"name"`
-	Brand *string `json:"brand"`
+	ID      uint64  `json:"id"`
+	Name    string  `json:"name"`
+	Brand   *string `json:"brand"`
+	Barcode *string `json:"barcode"`
 
 	Kcal         float64 `json:"kcal"`
 	Protein      float64 `json:"protein"`

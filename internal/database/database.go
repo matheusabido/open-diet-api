@@ -5,6 +5,9 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"net"
+	"net/url"
+	"os"
 	"path"
 	"sort"
 	"time"
@@ -17,10 +20,47 @@ import (
 //go:embed migrations/*.sql
 var migrations embed.FS
 
-func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {
-	config, err := pgxpool.ParseConfig(url)
+type Config struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
+}
+
+func ConfigFromEnv() (Config, error) {
+	keys := []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME"}
+	values := make([]string, len(keys))
+	for i, key := range keys {
+		values[i] = os.Getenv(key)
+		if values[i] == "" {
+			return Config{}, fmt.Errorf("%s environment variable is required", key)
+		}
+	}
+
+	return Config{
+		Host:     values[0],
+		Port:     values[1],
+		User:     values[2],
+		Password: values[3],
+		Name:     values[4],
+	}, nil
+}
+
+func (c Config) url() string {
+	u := url.URL{
+		Scheme: "postgres",
+		User:   url.UserPassword(c.User, c.Password),
+		Host:   net.JoinHostPort(c.Host, c.Port),
+		Path:   "/" + c.Name,
+	}
+	return u.String()
+}
+
+func Connect(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
+	config, err := pgxpool.ParseConfig(cfg.url())
 	if err != nil {
-		return nil, fmt.Errorf("parse database url: %w", err)
+		return nil, fmt.Errorf("parse database config: %w", err)
 	}
 
 	config.AfterConnect = func(_ context.Context, conn *pgx.Conn) error {

@@ -109,7 +109,7 @@ func (s *FoodScanService) FromBarcode(ctx context.Context, barcode string) (*dto
 		return nil, err
 	}
 
-	food := &dto.FoodDraftDTO{Name: strings.TrimSpace(product.NamePt)}
+	food := &dto.FoodDraftDTO{Name: strings.TrimSpace(product.NamePt), Barcode: &barcode}
 	if food.Name == "" {
 		food.Name = strings.TrimSpace(product.Name)
 	}
